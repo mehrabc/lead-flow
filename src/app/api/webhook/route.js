@@ -29,7 +29,7 @@ export async function GET(request) {
   const mode = searchParams.get("hub.mode");
   const token = searchParams.get("hub.verify_token");
   const challenge = searchParams.get("hub.challenge");
-
+  console.log(challenge);
   if (mode === "subscribe" && token === process.env.FACEBOOK_VERIFY_TOKEN) {
     return new NextResponse(challenge);
   } else {
@@ -41,7 +41,7 @@ export async function POST(request) {
   try {
     await connectDB();
     const body = await req.json();
-
+    return new NextResponse(body);
     console.log("Received webhook data:", JSON.stringify(body));
     // Verify the webhook request (you should implement proper verification)
     // For now, we'll assume all requests are valid
