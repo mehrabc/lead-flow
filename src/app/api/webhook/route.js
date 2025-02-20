@@ -1,10 +1,24 @@
 import { NextResponse } from "next/server";
 // import clientPromise from "@/lib/mongodb";
 import mongoose from "mongoose";
+import crypto from "crypto";
+
+// Function to validate the X-Hub-Signature header
+const isXHubValid = (req, body) => {
+  const signature = req.headers.get("x-hub-signature-256");
+  if (!signature || !APP_SECRET) return false;
+
+  const hash = `sha256=${crypto
+    .createHmac("sha256", APP_SECRET)
+    .update(body)
+    .digest("hex")}`;
+
+  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(hash));
+};
 
 const MONGO_URI = process.env.MONGODB_URI; // Add this in .env.local
 const VERIFY_TOKEN = process.env.FB_VERIFY_TOKEN; // Add this in .env.local
-
+const APP_SECRET = process.env.FB_APP_SECRET;
 // Connect to MongoDB
 const connectDB = async () => {
   if (mongoose.connection.readyState === 1) return;
@@ -34,26 +48,37 @@ export async function GET(request) {
 
 export async function POST(req) {
   try {
-    await connectDB();
-    const body = await req.json();
-    // return new NextResponse(body);
-    console.log("Received webhook data:", JSON.stringify(body));
-    // Verify the webhook request (you should implement proper verification)
-    // For now, we'll assume all requests are valid
+    const body = await req.text(); // Read raw text body
+    const jsonBody = JSON.parse(body); // Convert to JSON
 
+    console.log("Facebook request body:", jsonBody);
+
+    // Validate signature
+    if (!isXHubValid(req, body)) {
+      console.log(
+        "Warning - request header X-Hub-Signature not present or invalid"
+      );
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    console.log("Request header X-Hub-Signature validated");
+
+    await connectDB();
     const lead = new Lead({
-      ...body, // Spread all fields dynamically
-      createdAt: new Date(), // Ensure createdAt is always a valid date
+      ...jsonBody,
+      createdAt: new Date(),
     });
     await lead.save();
 
-    return NextResponse.json(
-      { message: "Lead saved successfully" },
+    return new NextResponse(
+      JSON.stringify({ message: "Lead saved successfully" }),
       { status: 200 }
     );
   } catch (error) {
     console.error("Error saving lead:", error);
-    return NextResponse.json({ message: "Error saving lead" }, { status: 500 });
+    return new NextResponse(JSON.stringify({ message: "Error saving lead" }), {
+      status: 500,
+    });
   }
 }
 
