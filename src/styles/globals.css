@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .form-label{
+        @apply text-primaryPurple text-xs sm:text-sm lg:text-base font-medium
+    }
+    .input-field {
+        @apply text-sm px-3 text-formInputText h-[43.2px] rounded-md border-[1.8px] focus:outline-2 focus:outline-offset-2 focus:outline-violet-500 border-black/50 !important;
+      }
+
+    .react-tel-input {
+        @apply relative w-full;
+    }
+
+    /* Ensure the input field has proper padding and visibility */
+    .react-tel-input .form-control {
+        @apply text-xs text-start text-formInputText font-semibold h-[43.2px] rounded-md border-[1.8px] border-black/50 w-full pl-16 !important; /* Adjusted left padding */
+    }
+
+    /* Fix left border visibility and alignment */
+    .react-tel-input .flag-dropdown {
+        @apply absolute left-0 top-0 h-full flex items-center justify-center border-black/50 border-r-[1.8px] bg-white rounded-l-md;
+    }
+
+    /* Ensure the dropdown is visible and properly positioned */
+    .react-tel-input .flag-dropdown.open {
+        @apply z-50;
+    }
+
+    /* Make sure focus styles apply */
+    .react-tel-input .form-control:focus {
+        @apply border-[3px] border-violet-500 outline-none ring-0 !important;
+    }
+
+}
