@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 // import clientPromise from "@/lib/mongodb";
 import mongoose from "mongoose";
 
-const MONGO_URI = process.env.MONGO_URI; // Add this in .env.local
+const MONGO_URI = process.env.MONGODB_URI; // Add this in .env.local
 const VERIFY_TOKEN = process.env.FB_VERIFY_TOKEN; // Add this in .env.local
 
 // Connect to MongoDB
@@ -15,12 +15,7 @@ const connectDB = async () => {
 };
 
 // Define Lead Schema
-const leadSchema = new mongoose.Schema({
-  name: String,
-  email: String,
-  status: String,
-  createdAt: Object,
-});
+const leadSchema = new mongoose.Schema({}, { strict: false });
 
 const Lead = mongoose.models.Lead || mongoose.model("Lead", leadSchema);
 
@@ -39,18 +34,16 @@ export async function GET(request) {
 
 export async function POST(req) {
   try {
-    // await connectDB();
+    await connectDB();
     const body = await req.json();
-    return new NextResponse(body);
+    // return new NextResponse(body);
     console.log("Received webhook data:", JSON.stringify(body));
     // Verify the webhook request (you should implement proper verification)
     // For now, we'll assume all requests are valid
 
     const lead = new Lead({
-      form_id: change.value.form_id,
-      lead_id: change.value.lead_id,
-      created_time: change.value.created_time,
-      field_data: change.value.field_data,
+      ...body, // Spread all fields dynamically
+      createdAt: new Date(), // Ensure createdAt is always a valid date
     });
     await lead.save();
 
