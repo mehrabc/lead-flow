@@ -49,7 +49,7 @@ export async function POST(request) {
     console.log("Received webhook data:", JSON.stringify(body, null, 2));
 
     const client = await clientPromise;
-    const db = client.db("your_database_name");
+    const db = client.db("veritasDB");
 
     // Extract the lead data from the webhook payload
     const leadData = body.entry[0].changes[0].value.lead_gen_data.data;
