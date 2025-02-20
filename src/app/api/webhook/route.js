@@ -37,7 +37,7 @@ export async function GET(request) {
   }
 }
 
-export async function POST(request) {
+export async function POST(req) {
   try {
     // await connectDB();
     const body = await req.json();
