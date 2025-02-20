@@ -39,7 +39,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    await connectDB();
+    // await connectDB();
     const body = await req.json();
     return new NextResponse(body);
     console.log("Received webhook data:", JSON.stringify(body));
