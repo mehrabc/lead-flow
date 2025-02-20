@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 // import clientPromise from "@/lib/mongodb";
 import mongoose from "mongoose";
 import crypto from "crypto";
+const MONGO_URI = process.env.MONGODB_URI; // Add this in .env.local
+const VERIFY_TOKEN = process.env.FB_VERIFY_TOKEN; // Add this in .env.local
+const APP_SECRET = process.env.FB_APP_SECRET;
 
 // Function to validate the X-Hub-Signature header
 const isXHubValid = (req, body) => {
@@ -10,15 +13,15 @@ const isXHubValid = (req, body) => {
 
   const hash = `sha256=${crypto
     .createHmac("sha256", APP_SECRET)
-    .update(body)
+    .update(body, "utf-8") // Explicit encoding
     .digest("hex")}`;
 
-  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(hash));
+  return crypto.timingSafeEqual(
+    Buffer.from(signature, "utf-8"),
+    Buffer.from(hash, "utf-8")
+  );
 };
 
-const MONGO_URI = process.env.MONGODB_URI; // Add this in .env.local
-const VERIFY_TOKEN = process.env.FB_VERIFY_TOKEN; // Add this in .env.local
-const APP_SECRET = process.env.FB_APP_SECRET;
 // Connect to MongoDB
 const connectDB = async () => {
   if (mongoose.connection.readyState === 1) return;
