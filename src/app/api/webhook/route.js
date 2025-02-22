@@ -32,7 +32,12 @@ const connectDB = async () => {
 };
 
 // Define Lead Schema
-const leadSchema = new mongoose.Schema({}, { strict: false });
+const leadSchema = new mongoose.Schema(
+  {
+    leadId: { type: String, unique: true, sparse: true }, // Ensures uniqueness but allows nulls
+  },
+  { strict: false }
+);
 
 const Lead = mongoose.models.Lead || mongoose.model("Lead", leadSchema);
 
@@ -53,7 +58,7 @@ export async function POST(req) {
   try {
     const body = await req.text(); // Read raw text body
     const jsonBody = JSON.parse(body); // Convert to JSON
-
+    // const data = jsonBody.entry[0].changes.map((value)=>)
     console.log("Facebook request body:", jsonBody);
 
     // Validate signature
@@ -69,6 +74,7 @@ export async function POST(req) {
     await connectDB();
     const lead = new Lead({
       ...jsonBody,
+      leadId: jsonBody.leadId || crypto.randomUUID(), // Generate a unique ID if missing
       createdAt: new Date(),
     });
     await lead.save();
