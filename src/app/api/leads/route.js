@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 const MONGO_URI = process.env.MONGODB_URI; // Add this in .env.local
-const leadSchema = new mongoose.Schema({}, { strict: false });
+const leadSchema = new mongoose.Schema(
+    {
+        leadId: { type: String, unique: true, sparse: true }, // Ensures uniqueness but allows nulls
+    },
+    { strict: false }
+);
 
 const Lead = mongoose.models.Lead || mongoose.model("Lead", leadSchema);
 
